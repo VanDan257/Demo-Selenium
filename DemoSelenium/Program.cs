@@ -1,2 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿
+using DemoSelenium.Services;
+
+namespace DemoSelenium
+{
+    public class Program
+    {
+        public static CrawlService crawlService = new CrawlService();
+
+        public static void Main(string[] args)
+        {
+
+        }
+    }
+}
+
