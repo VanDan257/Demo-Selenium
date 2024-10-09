@@ -184,6 +184,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
+                                    return "";
                                 }
                             }
                             return "*there is no element with value equal to " + value;
@@ -200,8 +201,10 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
+                                    return "";
                                 }
                             }
+                            return "*there is no element with value equal to " + value;
                         }
                         return "*element not found";
                     }
@@ -246,6 +249,47 @@ namespace DemoSelenium.Services
                             foreach (var item in webElement)
                             {
                                 if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
+                                {
+                                    item.Click();
+                                }
+                            }
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public string DropdownList(string element, string value)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.XPath(element));
+                        if (webElement.Count() > 0)
+                        {
+                            webElement[0].Click();
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
+                        if (webElement.Count() > 0)
+                        {
+                            foreach (var item in webElement)
+                            {
+                                if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
                                 }
