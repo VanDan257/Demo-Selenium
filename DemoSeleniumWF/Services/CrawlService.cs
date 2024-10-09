@@ -1,5 +1,5 @@
-﻿using DemoSelenium.SeleniumHelpers;
-using DemoSelenium.Utils;
+﻿using DemoSeleniumWF.SeleniumHelpers;
+using DemoSeleniumWF.Utils;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebDriverManager.DriverConfigs.Impl;
+using WebDriverManager;
+using System.Threading;
 
-namespace DemoSelenium.Services
+namespace DemoSeleniumWF.Services
 {
     public class CrawlService
     {
@@ -20,9 +23,12 @@ namespace DemoSelenium.Services
         {
             try
             {
-                ChromeOptions options = new ChromeOptions();
+                // Sử dụng WebDriverManager để tải xuống và cấu hình ChromeDriver
+                new DriverManager().SetUpDriver(new ChromeConfig());
 
-                driver = new ChromeDriver(options);
+                // Khởi tạo ChromeDriver
+                driver = new ChromeDriver();
+
                 driver.Manage().Window.Maximize();
             }
             catch (Exception ex)
@@ -95,6 +101,42 @@ namespace DemoSelenium.Services
             }
         }
 
+        public string Click(string element)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElement(By.XPath(element));
+                        if (webElement != null)
+                        {
+                            webElement.Click();
+                            return string.Empty;
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElement(By.CssSelector(element));
+                        if (webElement != null)
+                        {
+                            webElement.Click();
+                            return string.Empty;
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
         public string InputValue(string element, string value)
         {
             try
@@ -108,7 +150,7 @@ namespace DemoSelenium.Services
                         if (webElement != null)
                         {
                             webElement.SendKeys(value);
-                            return "";
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -118,7 +160,7 @@ namespace DemoSelenium.Services
                         if (webElement != null)
                         {
                             webElement.SendKeys(value);
-                            return "";
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -144,7 +186,7 @@ namespace DemoSelenium.Services
                         if (webElement != null)
                         {
                             webElement.Click();
-                            return "";
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -154,7 +196,7 @@ namespace DemoSelenium.Services
                         if (webElement != null)
                         {
                             webElement.Click();
-                            return "";
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -184,7 +226,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
-                                    return "";
+                                    return string.Empty;
                                 }
                             }
                             return "*there is no element with value equal to " + value;
@@ -201,7 +243,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
-                                    return "";
+                                    return string.Empty;
                                 }
                             }
                             return "*there is no element with value equal to " + value;
@@ -235,6 +277,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
                                 {
                                     item.Click();
+                                    return string.Empty;
                                 }
                             }
 
@@ -251,6 +294,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
                                 {
                                     item.Click();
+                                    return string.Empty;
                                 }
                             }
                         }
@@ -279,6 +323,7 @@ namespace DemoSelenium.Services
                         if (webElement.Count() > 0)
                         {
                             webElement.First().Click();
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -292,6 +337,7 @@ namespace DemoSelenium.Services
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
                                     item.Click();
+                                    return string.Empty;
                                 }
                             }
                         }
@@ -339,9 +385,6 @@ namespace DemoSelenium.Services
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             js.ExecuteScript("arguments[0].scrollIntoView(true);", element);
 
-            // Thiết lập zoom màn hình
-            js.ExecuteScript($"document.body.style.zoom='58%';");
-
             Thread.Sleep(500); // chờ trình duyệt scroll tới page cần chụp
 
             // Chụp ảnh màn hình và lưu trữ
@@ -350,6 +393,29 @@ namespace DemoSelenium.Services
 
             // Lưu ảnh chụp vào file
             return screenshot.AsByteArray;
+        }
+
+        public void MarkElementError(string element)
+        {
+            // Tìm phần tử lỗi
+            IWebElement webElement;
+            var firstCharacter = element[0];
+            if (firstCharacter == '/')
+            {
+                webElement = driver.GetElement(By.XPath(element));
+            }
+            else
+            {
+                webElement = driver.GetElement(By.CssSelector(element));
+            }
+
+            if (webElement != null)
+            {
+                // Sử dụng JavaScript để thay đổi background-color
+                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                js.ExecuteScript("arguments[0].style.backgroundColor = 'red';", webElement);
+                js.ExecuteScript("arguments[0].style.border = '1px solid red';", webElement);
+            }
         }
     }
 }
