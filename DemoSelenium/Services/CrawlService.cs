@@ -1,4 +1,5 @@
 ﻿using DemoSelenium.SeleniumHelpers;
+using DemoSelenium.Utils;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
@@ -20,9 +21,9 @@ namespace DemoSelenium.Services
             try
             {
                 ChromeOptions options = new ChromeOptions();
-                options.AddArguments("--headless=new");
 
                 driver = new ChromeDriver(options);
+                driver.Manage().Window.Maximize();
             }
             catch (Exception ex)
             {
@@ -35,10 +36,6 @@ namespace DemoSelenium.Services
             try
             {
                 driver.Navigate().GoToUrl(url);
-
-                // Thiết lập zoom màn hình
-                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-                js.ExecuteScript($"document.body.style.zoom='58%';");
             }
             catch (Exception ex)
             {
@@ -94,8 +91,174 @@ namespace DemoSelenium.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return "";
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public string InputValue(string element, string value)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElement(By.XPath(element));
+                        if (webElement != null)
+                        {
+                            webElement.SendKeys(value);
+                            return "";
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElement(By.CssSelector(element));
+                        if (webElement != null)
+                        {
+                            webElement.SendKeys(value);
+                            return "";
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public string Button(string element)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElement(By.XPath(element));
+                        if (webElement != null)
+                        {
+                            webElement.Click();
+                            return "";
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElement(By.CssSelector(element));
+                        if (webElement != null)
+                        {
+                            webElement.Click();
+                            return "";
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public string Radio(string element, string value)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.XPath(element));
+                        if (webElement.Count() > 0)
+                        {
+                            foreach (var item in webElement)
+                            {
+                                if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
+                                {
+                                    item.Click();
+                                }
+                            }
+                            return "*there is no element with value equal to " + value;
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
+                        if (webElement.Count() > 0)
+                        {
+                            foreach (var item in webElement)
+                            {
+                                if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
+                                {
+                                    item.Click();
+                                }
+                            }
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public string Checkbox(string element, string value)
+        {
+            try
+            {
+                var values = value.Split(',');
+                if (!string.IsNullOrEmpty(element))
+                {
+                    var firstCharacter = element[0];
+                    if (firstCharacter == '/')
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.XPath(element));
+                        if (webElement.Count() > 0)
+                        {
+                            foreach (var item in webElement)
+                            {
+                                if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
+                                {
+                                    item.Click();
+                                }
+                            }
+
+                        }
+                        return "*element not found";
+                    }
+                    else
+                    {
+                        var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
+                        if (webElement.Count() > 0)
+                        {
+                            foreach (var item in webElement)
+                            {
+                                if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
+                                {
+                                    item.Click();
+                                }
+                            }
+                        }
+                        return "*element not found";
+                    }
+                }
+                return "*element not found";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
             }
         }
 

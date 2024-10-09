@@ -55,5 +55,26 @@ namespace DemoSelenium.Utils
 
             return areEqual;
         }
+
+        /// <summary>
+        /// So sánh 1 mảng có KDL chuỗi có chứa chuỗi chỉ định không
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="str2"></param>
+        /// <returns></returns>
+        public static bool CompareArrayContainString(string[] arr, string str2)
+        {
+            string normalizedStr2 = StringHelper.NormalizeText(str2);
+
+            foreach (string str in arr)
+            {
+                string normalizedStr = StringHelper.NormalizeText(str); // replace xuống dòng thành khoảng trắng
+                bool areEqual = normalizedStr.Equals(normalizedStr2, StringComparison.OrdinalIgnoreCase);
+
+                return areEqual;
+            }
+
+            return false;
+        }
     }
 }

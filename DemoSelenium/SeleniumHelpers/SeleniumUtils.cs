@@ -7,19 +7,20 @@ using System.Threading.Tasks;
 
 namespace DemoSelenium.SeleniumHelpers
 {
-    public class SeleniumUtils
+    public static class SeleniumUtils
     {
-        private readonly IWebDriver _driver;
-        public SeleniumUtils(IWebDriver driver)
-        {
-            _driver = driver;
-        }
-        public bool IsElementPresent( By by)
+        /// <summary>
+        /// Kiểm tra có phần tử đó hay không
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="by"></param>
+        /// <returns></returns>
+        public static bool IsElementPresent(this IWebDriver driver, By by)
         {
             try
             {
-                _driver.FindElement(by);
-                return true;
+                var item = driver.FindElement(by);
+                return item != null;
             }
             catch (NoSuchElementException ex)
             {
@@ -28,13 +29,40 @@ namespace DemoSelenium.SeleniumHelpers
             }
         }
 
-        public IWebElement GetElement(By by)
+        /// <summary>
+        /// Kiểm tra phần tử đó có được hiển thị hay không
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="by"></param>
+        /// <returns></returns>
+        public static bool IsElementDisplayed(this IWebDriver driver, By by)
         {
             try
             {
-                if (IsElementPresent(by))
+                var item = driver.FindElement(by);
+
+                return item.Displayed == true;
+            }
+            catch (NoSuchElementException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Lấy phần tử đầu tiên được tìm thấy
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="by"></param>
+        /// <returns></returns>
+        public static IWebElement GetElement(this IWebDriver driver, By by)
+        {
+            try
+            {
+                if (driver.IsElementPresent(by))
                 {
-                    return _driver.FindElement(by);
+                    return driver.FindElement(by);
                 }
                 return null;
             }
@@ -42,6 +70,40 @@ namespace DemoSelenium.SeleniumHelpers
             {
                 Console.WriteLine(ex.Message);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Lấy tất cả phần tử được tìm thấy
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="by"></param>
+        /// <returns></returns>
+        public static IEnumerable<IWebElement> GetElements(this IWebDriver driver, By by)
+        {
+            try
+            {
+                return driver.FindElements(by);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Lấy tất cả phần tử được hiển thị
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="by"></param>
+        /// <returns></returns>
+        public static IEnumerable<IWebElement> GetElementsDisplayed(this IWebDriver driver, By by)
+        {
+            var elements = GetElements(driver, by);
+            foreach (var element in elements)
+            {
+                yield return element;
             }
         }
     }
