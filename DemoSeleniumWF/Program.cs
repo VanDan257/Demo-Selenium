@@ -1,4 +1,6 @@
-﻿using OfficeOpenXml;
+﻿using AutoTest;
+using log4net.Config;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,9 @@ namespace DemoSeleniumWF
         static void Main()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            // Cấu hình log4net bằng cách đọc tệp cấu hình
+            XmlConfigurator.Configure();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

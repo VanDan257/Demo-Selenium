@@ -141,7 +141,9 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\IndexTest.cs" />
+    <Compile Include="Models\ResultTestSheet.cs" />
     <Compile Include="Models\SheetTest.cs" />
+    <Compile Include="Models\TestFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeleniumHelpers\DriverFactory.cs" />

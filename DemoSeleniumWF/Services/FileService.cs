@@ -2,6 +2,7 @@
 using DemoSeleniumWF.Models;
 using DemoSeleniumWF.Utils;
 using log4net;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
@@ -24,11 +25,11 @@ namespace DemoSeleniumWF.Services
 
         // đường dẫn file excel gốc
         private string fileName = "automationTest-report.xlsx";
-        private string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "file_run/automationTest-report.xlsx");
+        private string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "file_run/");
 
         // đường dẫn file excel template
         string templateFileName = "automationTest-report-template.xlsx";
-        string templateFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "template_test_case/automationTest-report.xlsx");
+        string templateFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "template_test_case/");
 
         // đường dẫn file lưu trữ danh sách tên file template
         string pathDataFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data/data.json");
@@ -43,9 +44,9 @@ namespace DemoSeleniumWF.Services
             {
                 List<IndexTest> listSheetTest = new List<IndexTest>();
                 // Kiểm tra xem file có tồn tại không
-                if (File.Exists(filePath))
+                if (File.Exists(filePath + fileName))
                 {
-                    using (var package = new ExcelPackage(new FileInfo(filePath)))
+                    using (var package = new ExcelPackage(new FileInfo(filePath + fileName)))
                     {
                         // Lấy worksheet đầu tiên - worksheet index
                         ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
@@ -75,10 +76,10 @@ namespace DemoSeleniumWF.Services
                                 }
 
                             }
+                            rowCount++;
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -213,6 +214,44 @@ namespace DemoSeleniumWF.Services
                     var imagePackage = worksheet.Drawings.AddPicture(fileName, memoryStream, ePictureType.Jpg);
                     imagePackage.SetPosition(setPositionRow, 0, setPositionColum, 0);
                 }
+            }
+        }
+
+        public void UploadTemplateFile(string fileSource, string fileTarget, string fileNameTarget)
+        {
+            var newFile = new TestFile
+            {
+                FileName = fileNameTarget,
+                DateModified = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")
+            };
+
+            // inser đối tượng vào file json
+            if (!File.Exists(pathDataFile))
+            {
+                // Nếu file không tồn tại, tạo file mới và viết đối tượng vào
+                string initialJson = JsonConvert.SerializeObject(new[] { newFile }, Formatting.Indented);
+                File.WriteAllText(pathDataFile, initialJson);
+            }
+            else
+            {
+                string jsonContent = File.ReadAllText(pathDataFile);
+                var testFiles = JsonConvert.DeserializeObject<List<TestFile>>(jsonContent);
+
+                var existingFile = testFiles.FirstOrDefault(x => x.FileName == fileName);
+                if (existingFile == null)
+                {
+                    testFiles.Add(newFile);
+                }
+                else
+                {
+                    existingFile.DateModified = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+                }
+
+                // Ghi lại dữ liệu vào file JSON
+                string updatedJson = JsonConvert.SerializeObject(testFiles, Formatting.Indented);
+                File.WriteAllText(pathDataFile, updatedJson);
+
+                File.Copy(fileTarget, templateFilePath + fileNameTarget, true); // true để ghi đè nếu file đã tồn tại
             }
         }
     }

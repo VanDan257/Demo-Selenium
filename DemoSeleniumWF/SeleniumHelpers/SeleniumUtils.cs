@@ -100,11 +100,11 @@ namespace DemoSeleniumWF.SeleniumHelpers
         /// <returns></returns>
         public static IEnumerable<IWebElement> GetElementsDisplayed(this IWebDriver driver, By by)
         {
-            var elements = GetElements(driver, by);
-            foreach (var element in elements)
-            {
-                yield return element;
-            }
+            var elements = driver.GetElements(by);
+            
+            elements = elements.Where(e => e.Displayed == true).ToList();
+
+            return elements;
         }
     }
 }

@@ -149,6 +149,8 @@ namespace DemoSeleniumWF.Services
                         var webElement = driver.GetElement(By.XPath(element));
                         if (webElement != null)
                         {
+                            webElement.SendKeys("");
+
                             webElement.SendKeys(value);
                             return string.Empty;
                         }
@@ -159,6 +161,8 @@ namespace DemoSeleniumWF.Services
                         var webElement = driver.GetElement(By.CssSelector(element));
                         if (webElement != null)
                         {
+                            webElement.SendKeys("");
+
                             webElement.SendKeys(value);
                             return string.Empty;
                         }
@@ -218,14 +222,14 @@ namespace DemoSeleniumWF.Services
                     var firstCharacter = element[0];
                     if (firstCharacter == '/')
                     {
-                        var webElement = driver.GetElementsDisplayed(By.XPath(element));
+                        var webElement = driver.GetElements(By.XPath(element));
                         if (webElement.Count() > 0)
                         {
                             foreach (var item in webElement)
                             {
                                 if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
                                 {
-                                    item.Click();
+                                    ForceClickUsingJs(item);
                                     return string.Empty;
                                 }
                             }
@@ -235,7 +239,7 @@ namespace DemoSeleniumWF.Services
                     }
                     else
                     {
-                        var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
+                        var webElement = driver.GetElements(By.CssSelector(element));
                         if (webElement.Count() > 0)
                         {
                             foreach (var item in webElement)
@@ -269,34 +273,33 @@ namespace DemoSeleniumWF.Services
                     var firstCharacter = element[0];
                     if (firstCharacter == '/')
                     {
-                        var webElement = driver.GetElementsDisplayed(By.XPath(element));
+                        var webElement = driver.GetElements(By.XPath(element));
                         if (webElement.Count() > 0)
                         {
                             foreach (var item in webElement)
                             {
                                 if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
                                 {
-                                    item.Click();
-                                    return string.Empty;
+                                    ForceClickUsingJs(item);
                                 }
                             }
-
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
                     else
                     {
-                        var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
+                        var webElement = driver.GetElements(By.CssSelector(element));
                         if (webElement.Count() > 0)
                         {
                             foreach (var item in webElement)
                             {
                                 if (CompareMethods.CompareArrayContainString(values, item.GetAttribute("value")))
                                 {
-                                    item.Click();
-                                    return string.Empty;
+                                    ForceClickUsingJs(item);
                                 }
                             }
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -332,14 +335,8 @@ namespace DemoSeleniumWF.Services
                         var webElement = driver.GetElementsDisplayed(By.CssSelector(element));
                         if (webElement.Count() > 0)
                         {
-                            foreach (var item in webElement)
-                            {
-                                if (CompareMethods.CompareEqual(item.GetAttribute("value"), value))
-                                {
-                                    item.Click();
-                                    return string.Empty;
-                                }
-                            }
+                            webElement.First().Click();
+                            return string.Empty;
                         }
                         return "*element not found";
                     }
@@ -379,6 +376,13 @@ namespace DemoSeleniumWF.Services
             return null;
         }
 
+        public void ScrollPageToItem(string element)
+        {
+            // Cuộn tới phần tử bằng JavaScript
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            js.ExecuteScript("arguments[0].scrollIntoView(true);", element);
+        }
+
         public byte[] ScreenShotPage(IWebElement element)
         {
             // Cuộn tới phần tử bằng JavaScript
@@ -416,6 +420,11 @@ namespace DemoSeleniumWF.Services
                 js.ExecuteScript("arguments[0].style.backgroundColor = 'red';", webElement);
                 js.ExecuteScript("arguments[0].style.border = '1px solid red';", webElement);
             }
+        }
+
+        public void ForceClickUsingJs(IWebElement element)
+        {
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
         }
     }
 }
