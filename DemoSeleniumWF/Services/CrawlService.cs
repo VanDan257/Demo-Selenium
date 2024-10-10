@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WebDriverManager.DriverConfigs.Impl;
 using WebDriverManager;
 using System.Threading;
+using OpenQA.Selenium.Support.UI;
 
 namespace DemoSeleniumWF.Services
 {
@@ -319,6 +320,8 @@ namespace DemoSeleniumWF.Services
                 if (!string.IsNullOrEmpty(element))
                 {
                     var firstCharacter = element[0];
+
+                    Thread.Sleep(500);
 
                     if (firstCharacter == '/')
                     {
