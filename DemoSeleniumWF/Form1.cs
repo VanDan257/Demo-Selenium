@@ -133,6 +133,9 @@ namespace AutoTest
                         // Lưu lại file Excel sau khi chèn dữ liệu
                         package.Save();
                     }
+                    linkFileName.Text = fileName;
+                    setLabelResultTest(Color.Black, "Run the test file successfully!", true);
+
                 }
                 else
                 {
@@ -322,6 +325,7 @@ namespace AutoTest
                 }
             }
         }
+
         public void RemoveImageByName(ExcelWorksheet worksheet, string imageName)
         {
             // Lấy tất cả các hình ảnh có tên chứa chuỗi namePattern
@@ -378,11 +382,14 @@ namespace AutoTest
                     string jsonContent = File.ReadAllText(pathDataFile);
                     List<TestFile> data = JsonConvert.DeserializeObject<List<TestFile>>(jsonContent);
 
-                    // fill data into dataGridView
-                    for (int i = 0; i < data.Count; i++)
+                    if(data != null)
                     {
-                        var dateModified = DateTime.Parse(data[i].DateModified);
-                        dataGridView1.Rows.Add(i + 1, data[i].FileName, dateModified.ToString("MM/dd/yyyy HH:mm:ss"), "X");
+                        // fill data into dataGridView
+                        for (int i = 0; i < data.Count; i++)
+                        {
+                            var dateModified = DateTime.Parse(data[i].DateModified);
+                            dataGridView1.Rows.Add(i + 1, data[i].FileName, dateModified.ToString("MM/dd/yyyy HH:mm:ss"), "X");
+                        }
                     }
                 }
             }
@@ -427,15 +434,22 @@ namespace AutoTest
                     {
                         string jsonContent = File.ReadAllText(pathDataFile);
                         var testFiles = JsonConvert.DeserializeObject<List<TestFile>>(jsonContent);
-
-                        var existingFile = testFiles.FirstOrDefault(x => x.FileName == fileName);
-                        if (existingFile == null)
+                        if(testFiles != null)
                         {
-                            testFiles.Add(newFile);
+                            var existingFile = testFiles.FirstOrDefault(x => x.FileName == fileName);
+                            if (existingFile == null)
+                            {
+                                testFiles.Add(newFile);
+                            }
+                            else
+                            {
+                                existingFile.DateModified = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+                            }
                         }
                         else
                         {
-                            existingFile.DateModified = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+                            testFiles = new List<TestFile>();
+                            testFiles.Add(newFile);
                         }
 
                         // Ghi lại dữ liệu vào file JSON

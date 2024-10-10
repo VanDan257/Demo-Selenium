@@ -149,7 +149,6 @@
     <Compile Include="SeleniumHelpers\DriverFactory.cs" />
     <Compile Include="SeleniumHelpers\SeleniumUtils.cs" />
     <Compile Include="Services\CrawlService.cs" />
-    <Compile Include="Services\FileService.cs" />
     <Compile Include="Utils\CompareMethods.cs" />
     <Compile Include="Utils\ConvertNumber.cs" />
     <Compile Include="Utils\Guard.cs" />

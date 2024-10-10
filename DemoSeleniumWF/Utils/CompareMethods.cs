@@ -71,7 +71,8 @@ namespace DemoSeleniumWF.Utils
                 string normalizedStr = StringHelper.NormalizeText(str); // replace xuống dòng thành khoảng trắng
                 bool areEqual = normalizedStr.Equals(normalizedStr2, StringComparison.OrdinalIgnoreCase);
 
-                return areEqual;
+                if(areEqual)
+                    return areEqual;
             }
 
             return false;
