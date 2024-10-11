@@ -186,81 +186,85 @@ namespace AutoTest
             {
                 totalItemTest++;
                 string itemTest = worksheet.Cells[rowCount, (int)EnumTestSheet.ColItemTest].Text.Trim();
-                var valueActual = crawlService.GetText(itemTest);
-
-                bool testResult = false; // test result item
-
-                string valueExpected = worksheet.Cells[rowCount, (int)EnumTestSheet.ColValueExpected].Text.Trim();
-
-                var methodTest = worksheet.Cells[rowCount, (int)EnumTestSheet.ColMethodTest].Text;
-                switch (methodTest)
+                if (!string.IsNullOrEmpty(itemTest))
                 {
-                    case MethodTest.CompareContain:
-                        testResult = CompareMethods.CompareContain(valueActual, valueExpected);
-                        break;
-                    case MethodTest.CompareEqual:
-                        testResult = CompareMethods.CompareEqual(valueActual, valueExpected);
-                        break;
-                    case MethodTest.CompareNumber:
-                        testResult = CompareMethods.CompareNumber(valueActual, valueExpected);
-                        break;
-                    case MethodTest.Input:
-                        valueActual = crawlService.InputValue(itemTest, valueExpected);
-                        if (string.IsNullOrEmpty(valueActual))
-                            testResult = true;
-                        break;
-                    case MethodTest.Click:
-                        valueActual = crawlService.Click(itemTest);
-                        if (string.IsNullOrEmpty(valueActual))
-                            testResult = true;
-                        break;
-                    case MethodTest.Radio:
-                        valueActual = crawlService.Radio(itemTest, valueExpected);
-                        if (string.IsNullOrEmpty(valueActual))
-                            testResult = true;
-                        break;
+                    crawlService.ScrollPageToItem(itemTest);
+                    var valueActual = crawlService.GetText(itemTest);
 
-                    case MethodTest.DropdownList:
-                        valueActual = crawlService.DropdownList(itemTest, valueExpected);
-                        if (string.IsNullOrEmpty(valueActual))
-                            testResult = true;
-                        break;
+                    bool testResult = false; // test result item
 
-                    case MethodTest.Checkbox:
-                        valueActual = crawlService.Checkbox(itemTest, valueExpected);
-                        if (string.IsNullOrEmpty(valueActual))
-                            testResult = true;
-                        break;
+                    string valueExpected = worksheet.Cells[rowCount, (int)EnumTestSheet.ColValueExpected].Text.Trim();
 
-                    default:
-                        testResult = CompareMethods.CompareEqual(valueActual, valueExpected);
-                        break;
-                }
-
-                InsertValueToTestSheet(worksheet, rowCount, (int)EnumTestSheet.ColValueActual, (int)EnumTestSheet.ColValueActual + 1, valueActual, testResult);
-
-                if (!testResult)
-                {
-                    totalItemError++;
-                    resultTestSheet.TestResult = false;
-                    crawlService.MarkElementError(itemTest);
-
-                    // chụp màn hình với mỗi page report có item test error
-                    var pageReport = crawlService.GetPageContainElement(itemTest);
-                    if (pageReport != null)
+                    var methodTest = worksheet.Cells[rowCount, (int)EnumTestSheet.ColMethodTest].Text;
+                    switch (methodTest)
                     {
-                        var indexPageReport = listPageReport.IndexOf(pageReport);
-                        if (indexPageReport == -1)
+                        case MethodTest.CompareContain:
+                            testResult = CompareMethods.CompareContain(valueActual, valueExpected);
+                            break;
+                        case MethodTest.CompareEqual:
+                            testResult = CompareMethods.CompareEqual(valueActual, valueExpected);
+                            break;
+                        case MethodTest.CompareNumber:
+                            testResult = CompareMethods.CompareNumber(valueActual, valueExpected);
+                            break;
+                        case MethodTest.Input:
+                            valueActual = crawlService.InputValue(itemTest, valueExpected);
+                            if (string.IsNullOrEmpty(valueActual))
+                                testResult = true;
+                            break;
+                        case MethodTest.Click:
+                            valueActual = crawlService.Click(itemTest);
+                            if (string.IsNullOrEmpty(valueActual))
+                                testResult = true;
+                            break;
+                        case MethodTest.Radio:
+                            valueActual = crawlService.Radio(itemTest, valueExpected);
+                            if (string.IsNullOrEmpty(valueActual))
+                                testResult = true;
+                            break;
+
+                        case MethodTest.DropdownList:
+                            valueActual = crawlService.DropdownList(itemTest, valueExpected);
+                            if (string.IsNullOrEmpty(valueActual))
+                                testResult = true;
+                            break;
+
+                        case MethodTest.Checkbox:
+                            valueActual = crawlService.Checkbox(itemTest, valueExpected);
+                            if (string.IsNullOrEmpty(valueActual))
+                                testResult = true;
+                            break;
+
+                        default:
+                            testResult = CompareMethods.CompareEqual(valueActual, valueExpected);
+                            break;
+                    }
+
+                    InsertValueToTestSheet(worksheet, rowCount, (int)EnumTestSheet.ColValueActual, (int)EnumTestSheet.ColValueActual + 1, valueActual, testResult);
+
+                    if (!testResult)
+                    {
+                        totalItemError++;
+                        resultTestSheet.TestResult = false;
+                        crawlService.MarkElementError(itemTest);
+
+                        // chụp màn hình với mỗi page report có item test error
+                        var pageReport = crawlService.GetPageContainElement(itemTest);
+                        if (pageReport != null)
                         {
-                            listPageReport.Add(pageReport);
-                        }
-                        else
-                        {
-                            listPageReport[indexPageReport] = pageReport;
+                            var indexPageReport = listPageReport.IndexOf(pageReport);
+                            if (indexPageReport == -1)
+                            {
+                                listPageReport.Add(pageReport);
+                            }
+                            else
+                            {
+                                listPageReport[indexPageReport] = pageReport;
+                            }
                         }
                     }
-                }
 
+                }
                 rowCount++;
             }
 

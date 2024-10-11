@@ -407,9 +407,23 @@ namespace DemoSeleniumWF.Services
 
         public void ScrollPageToItem(string element)
         {
-            // Cuộn tới phần tử bằng JavaScript
-            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-            js.ExecuteScript("arguments[0].scrollIntoView(true);", element);
+            IWebElement webElement;
+            var firstCharacter = element[0];
+            if (firstCharacter == '/')
+            {
+                webElement = driver.GetElement(By.XPath(element));
+            }
+            else
+            {
+                webElement = driver.GetElement(By.CssSelector(element));
+            }
+
+            if(webElement != null)
+            {
+                // Cuộn tới phần tử bằng JavaScript
+                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                js.ExecuteScript("arguments[0].scrollIntoView(true);", webElement);
+            }
         }
 
         public byte[] ScreenShotPage(IWebElement element)
