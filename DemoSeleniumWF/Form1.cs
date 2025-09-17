@@ -77,7 +77,7 @@ namespace AutoTest
             }
         }
 
-        public void RunTest()
+        private void RunTest()
         {
             crawlService.OpenConnection();
 
@@ -165,7 +165,7 @@ namespace AutoTest
             }
         }
 
-        public ResultTestSheet HandleSheetTest(ExcelPackage package, ExcelWorksheet worksheet, string sheetName)
+        private ResultTestSheet HandleSheetTest(ExcelPackage package, ExcelWorksheet worksheet, string sheetName)
         {
             List<IWebElement> listPageReport = new List<IWebElement>();
             var heightImage = 45; // chiều cao 1 ảnh chiếm 40 row
@@ -180,6 +180,8 @@ namespace AutoTest
             var totalItemTest = 0;
             var totalItemError = 0;
             var totalItemPass = 0;
+
+            var imageItemError = new List<byte[]>(); // danh sách ảnh có item test error
 
             // Duyệt qua tất cả các dòng cột Items test có giá trị trong sheet
             while (worksheet.Cells[rowCount, (int)EnumTestSheet.ColItemTest].Value != null && !string.IsNullOrEmpty(worksheet.Cells[rowCount, (int)EnumTestSheet.ColItemTest].Text))
@@ -247,20 +249,10 @@ namespace AutoTest
                         totalItemError++;
                         resultTestSheet.TestResult = false;
                         crawlService.MarkElementError(itemTest);
-
-                        // chụp màn hình với mỗi page report có item test error
-                        var pageReport = crawlService.GetPageContainElement(itemTest);
-                        if (pageReport != null)
+                        var image = crawlService.ScreenShotPageBySelector(itemTest);
+                        if (image != null)
                         {
-                            var indexPageReport = listPageReport.IndexOf(pageReport);
-                            if (indexPageReport == -1)
-                            {
-                                listPageReport.Add(pageReport);
-                            }
-                            else
-                            {
-                                listPageReport[indexPageReport] = pageReport;
-                            }
+                            imageItemError.Add(image);
                         }
                     }
 
@@ -269,7 +261,7 @@ namespace AutoTest
             }
 
             // Tạo sheet evidence nếu có case lỗi
-            if (listPageReport.Count > 0)
+            if (imageItemError.Count > 0)
             {
                 var newSheetName = "Evidence-" + sheetName;
                 var existingSheet = package.Workbook.Worksheets[newSheetName];
@@ -283,13 +275,9 @@ namespace AutoTest
 
                 package.Workbook.Worksheets.MoveAfter(newSheetName, sheetName); // di chuyển sheet mới đến vị trí sau sheet test
 
-                for (int i = 0; i < listPageReport.Count; i++)
+                for (int i = 0; i < imageItemError.Count; i++)
                 {
-                    var image = crawlService.ScreenShotPage(listPageReport[i]);
-                    if (image != null)
-                    {
-                        InsertImageToExcel(newWorksheet, image, (i * heightImage + 1), 1, "page_report_" + i);
-                    }
+                    InsertImageToExcel(newWorksheet, imageItemError[i], (i * heightImage + 1), 1, "page_report_" + i);
                 }
             }
 
@@ -330,7 +318,7 @@ namespace AutoTest
             }
         }
 
-        public void RemoveImageByName(ExcelWorksheet worksheet, string imageName)
+        private void RemoveImageByName(ExcelWorksheet worksheet, string imageName)
         {
             // Lấy tất cả các hình ảnh có tên chứa chuỗi namePattern
             var imagesToRemove = worksheet.Drawings
@@ -344,7 +332,7 @@ namespace AutoTest
             }
         }
 
-        public void Reset()
+        private void Reset()
         {
             labelViewFile.Text = "View result: ";
             linkFileName.Text = "";
@@ -391,8 +379,7 @@ namespace AutoTest
                         // fill data into dataGridView
                         for (int i = 0; i < data.Count; i++)
                         {
-                            var dateModified = DateTime.Parse(data[i].DateModified);
-                            dataGridView1.Rows.Add(i + 1, data[i].FileName, dateModified.ToString("MM/dd/yyyy HH:mm:ss"), "X");
+                            dataGridView1.Rows.Add(i + 1, data[i].FileName, data[i].DateModified, "X");
                         }
                     }
                 }
@@ -426,6 +413,24 @@ namespace AutoTest
                         FileName = fileName,
                         DateModified = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")
                     };
+
+                    #region khởi tạo các thư mục data, template_test_case, file_run nếu chưa tồn tại
+                    string directoryData = Path.GetDirectoryName(pathDataFile);
+                    if (!Directory.Exists(directoryData))
+                    {
+                        Directory.CreateDirectory(directoryData);
+                    }
+                    string directoryTemplateFilePath = Path.GetDirectoryName(templateFilePath);
+                    if (!Directory.Exists(directoryTemplateFilePath))
+                    {
+                        Directory.CreateDirectory(directoryTemplateFilePath);
+                    }
+                    string directoryFilPath = Path.GetDirectoryName(filePath);
+                    if (!Directory.Exists(directoryFilPath))
+                    {
+                        Directory.CreateDirectory(directoryFilPath);
+                    }
+                    #endregion
 
                     // Kiểm tra xem file có tồn tại không
                     if (!File.Exists(pathDataFile))
@@ -492,8 +497,7 @@ namespace AutoTest
                     // fill data into dataGridView
                     for (int i = 0; i < data.Count; i++)
                     {
-                        var dateModified = DateTime.Parse(data[i].DateModified);
-                        dataGridView1.Rows.Add(i + 1, data[i].FileName, dateModified.ToString("MM/dd/yyyy HH:mm:ss"), "X");
+                        dataGridView1.Rows.Add(i + 1, data[i].FileName, data[i].DateModified, "X");
                     }
                 }
             }

@@ -431,8 +431,22 @@ namespace DemoSeleniumWF.Services
             // Cuộn tới phần tử bằng JavaScript
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             js.ExecuteScript("arguments[0].scrollIntoView(true);", element);
+            // Cuộn thêm 300px lên trên để phần tử ở giữa màn hình
+            js.ExecuteScript("window.scrollBy(0, -300);");
 
-            Thread.Sleep(500); // chờ trình duyệt scroll tới page cần chụp
+            // Chờ phần tử hiển thị sau khi scroll
+            WebDriverWait wait = new WebDriverWait(new SystemClock(), driver, TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
+            wait.Until(drv =>
+            {
+                try
+                {
+                    return element.Displayed;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
 
             // Chụp ảnh màn hình và lưu trữ
             ITakesScreenshot screenshotDriver = driver as ITakesScreenshot;
@@ -440,6 +454,58 @@ namespace DemoSeleniumWF.Services
 
             // Lưu ảnh chụp vào file
             return screenshot.AsByteArray;
+        }
+
+        public byte[] ScreenShotPageBySelector(string selector)
+        {
+            if (string.IsNullOrEmpty(selector))
+                return null;
+
+            IWebElement element = null;
+            try
+            {
+                var firstCharacter = selector[0];
+                if (firstCharacter == '/')
+                {
+                    element = driver.GetElement(By.XPath(selector));
+                }
+                else
+                {
+                    element = driver.GetElement(By.CssSelector(selector));
+                }
+
+                if (element == null)
+                    return null;
+
+                // Cuộn tới phần tử bằng JavaScript
+                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                js.ExecuteScript("arguments[0].scrollIntoView(true);", element);
+                // Cuộn thêm 300px lên trên để phần tử ở giữa màn hình
+                js.ExecuteScript("window.scrollBy(0, -300);");
+
+                // Chờ phần tử hiển thị sau khi scroll
+                WebDriverWait wait = new WebDriverWait(new SystemClock(), driver, TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(100));
+                wait.Until(drv =>
+                {
+                    try
+                    {
+                        return element.Displayed;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
+
+                ITakesScreenshot screenshotDriver = driver as ITakesScreenshot;
+                Screenshot screenshot = screenshotDriver.GetScreenshot();
+
+                return screenshot.AsByteArray;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public void MarkElementError(string element)
