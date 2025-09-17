@@ -2,16 +2,17 @@
 using DemoSeleniumWF.Utils;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using WebDriverManager.DriverConfigs.Impl;
-using WebDriverManager;
 using System.Threading;
-using OpenQA.Selenium.Support.UI;
-using System.CodeDom;
+using System.Threading.Tasks;
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
 
 namespace DemoSeleniumWF.Services
 {
@@ -21,21 +22,24 @@ namespace DemoSeleniumWF.Services
 
         public CrawlService() { }
 
-        public void OpenConnection()
+        public bool OpenConnection()
         {
             try
             {
-                // Sử dụng WebDriverManager để tải xuống và cấu hình ChromeDriver
+                // Sử dụng WebDriverManager để tự động tải ChromeDriver phù hợp
                 new DriverManager().SetUpDriver(new ChromeConfig());
+                ChromeOptions options = new ChromeOptions();
 
-                // Khởi tạo ChromeDriver
-                driver = new ChromeDriver();
+                driver = new ChromeDriver(options);
 
                 driver.Manage().Window.Maximize();
+
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return false;
             }
         }
 
